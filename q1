@@ -1,0 +1,38 @@
+- name: Deploy web server
+  hosts: target_machine
+  become: true
+  tasks:
+    - name: Install Apache web server
+      apt:
+        name: apache2
+        state: present
+
+    - name: Copy HTML file to web root directory
+      copy:
+        src: index.html
+        dest: /var/www/html/index.html
+
+    - name: Secure web server
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+
+    - name: Enable SSL module
+      apache2_module:
+        name: ssl
+        state: present
+
+    - name: Add redirect rule to Apache configuration
+      lineinfile:
+        path: /etc/apache2/
+        regexp: 
+        line: 
+      notify:
+        - Restart Apache service
+
+  handlers:
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
