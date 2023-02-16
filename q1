@@ -36,3 +36,11 @@
       service:
         name: apache2
         state: restarted
+        
+        
+        
+    - name: Run automated tests
+      command: pytest test_hello_world.py
+      args:
+      chdir: /home/user
+
