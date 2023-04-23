@@ -1,0 +1,41 @@
+name: Fetch Secret
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  fetch_secret:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ AKIA4EW2MF4BP3DGNK6Q }}
+        aws-secret-access-key: ${{ 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 }}
+        aws-region: us-east-1
+
+    - name: Assume interview-bot role
+      run: |
+        ROLE_ARN="arn:aws:iam::<AKIA4EW2MF4BP3DGNK6Q>:role/interview-bot"
+        RESULT=$(aws sts assume-role --role-arn $ROLE_ARN --role-session-name "GitHubActions")
+        echo "AWS_ACCESS_KEY_ID=$(echo $RESULT | jq -r '.Credentials.AccessKeyId')" >> $GITHUB_ENV
+        echo "AWS_SECRET_ACCESS_KEY=$(echo $RESULT | jq -r '.Credentials.SecretAccessKey')" >> $GITHUB_ENV
+        echo "AWS_SESSION_TOKEN=$(echo $RESULT | jq -r '.Credentials.SessionToken')" >> $GITHUB_ENV
+
+    - name: Fetch secret
+      run: |
+        SECRET_ARN="arn:aws:secretsmanager:us-west-2:<AKIA4EW2MF4BP3DGNK6Q>:secret:extend-interview/Asharib"
+        SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_ARN --query SecretString --output text)
+        echo "SECRET_VALUE=$SECRET_VALUE" > secret.txt
+
+    - name: Upload secret logfile
+      uses: actions/upload-artifact@v2
+      with:
+        name: secret-logfile
+        path: secret.txt
