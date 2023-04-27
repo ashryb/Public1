@@ -1,10 +1,10 @@
 provider "aws" {
-  region = "us-west-2"
+  region = "us-east-1"
 }
 
 locals {
-  your_name     = "Asharib"
-  secret_value  = "04/19/2023 Asharib Mazhar ExTend"
+  your_name     = "AsharibM"
+  secret_value  = "04/27/2023"
 }
 
 resource "aws_secretsmanager_secret" "interview_secret" {
